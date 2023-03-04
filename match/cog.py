@@ -66,7 +66,7 @@ async def get_prev_lineup(channel: TextChannel) -> Optional[Message]:
             if (
                 message.author.id == MY_ID
                 and '6v6 War List' in message.embeds[0].title
-                and message.embeds[0].author.name != 'アーカイブ'
+                and message.embeds[0].author.name != 'Archive'
             ):
                 return message
             else:
