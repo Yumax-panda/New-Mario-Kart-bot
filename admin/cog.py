@@ -231,10 +231,10 @@ class Admin(commands.Cog, name='Admin', command_attrs=dict(hidden=True)):
         if content is not None:
             await ctx.respond(content)
             return
-        raise error
-        # await self.send_app_error(ctx, error)
-        # await ctx.respond({'ja': '予期しないエラーが発生しました。'}.get(ctx.locale, 'Unexpected error raised.'))
-        # await ctx.interaction.delete_original_response()
+
+        await self.send_app_error(ctx, error)
+        await ctx.respond({'ja': '予期しないエラーが発生しました。'}.get(ctx.locale, 'Unexpected error raised.'))
+        await ctx.interaction.delete_original_response()
 
 
     @commands.Cog.listener('on_command_error')
@@ -262,9 +262,8 @@ class Admin(commands.Cog, name='Admin', command_attrs=dict(hidden=True)):
             await ctx.send(content)
             return
 
-        raise error
-        # await self.send_command_error(ctx, error)
-        # await ctx.send('予期しないエラーが発生しました。\nUnexpected error raised.')
+        await self.send_command_error(ctx, error)
+        await ctx.send('予期しないエラーが発生しました。\nUnexpected error raised.')
 
 
     @commands.Cog.listener('on_guild_join')
