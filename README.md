@@ -50,4 +50,4 @@ Discordサーバー内のロール（役職）と連携した機能を実装し�
 
 ## 使用方法
 
- [招待リンク]([https://discord.com/api/oauth2/authorize?client_id=1038322985146273853&permissions=8&scope=bot](https://discordapp.com/api/oauth2/authorize?client_id=1038322985146273853&permissions=854027660408&scope=bot%20applications.commands))から各自サーバーへ本botを招待してください。また、コマンドの確認はサーバー内にて`/help`と入力することで確認できます。
+ [招待リンク](https://discordapp.com/api/oauth2/authorize?client_id=1038322985146273853&permissions=854027660408&scope=bot%20applications.commands)から各自サーバーへ本botを招待してください。また、コマンドの確認はサーバー内にて`/help`と入力することで確認できます。
