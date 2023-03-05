@@ -130,6 +130,55 @@ class Team(commands.Cog, name='Team'):
 
 
     @team.command(
+        name = 'peak_mmr',
+        description = 'Average Peak MMR',
+        description_localizations = {'ja':'チームの平均Peak MMRを計算'}
+    )
+    @commands.guild_only()
+    async def team_peak_mmr(
+        self,
+        ctx: ApplicationContext,
+        role: Option(
+            Role,
+            name = 'role',
+            name_localizations = {'ja':'ロール'}
+        )
+    ) -> None:
+        await ctx.response.defer()
+        players = await get_players_by_ids([m.id for m in role.members])
+
+        if not any(map(lambda x: x.is_rich, players)):
+            raise PlayerNotFound
+
+        df = pd.DataFrame([p.to_dict() for p in players]).sort_values('max_mmr', ascending=False).drop_duplicates(subset='name', inplace=False)
+        average = df['max_mmr'].mean()
+        count = 0
+        header= f'**Role**  {role.mention}\n'
+        content = commands.Paginator(prefix='', suffix='')
+
+        for player in from_records(df.to_dict('records')):
+            if not player.is_rich:
+                continue
+            else:
+                count += 1
+                content.add_line(f'{str(count).rjust(3)}: [{player.name}]({player.lounge_url}) ({int(player.max_mmr)})')
+
+        embeds = [LoungeEmbed(
+            mmr=average,
+            title=f'Team MMR: {average:.1f}',
+            description=header+p
+        ) for p in content.pages]
+        is_compact = len(embeds) == 1
+
+        await pages.Paginator(
+            pages=embeds,
+            show_disabled=not is_compact,
+            show_indicator=not is_compact,
+            author_check=False
+            ).respond(ctx.interaction)
+
+
+    @team.command(
         name = 'mkc',
         description ='Show mkc website url',
         description_localizations ={'ja':'MKCサイトのリンク'}
