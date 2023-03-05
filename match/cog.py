@@ -7,6 +7,7 @@ from discord import (
     Member,
     Option,
     Message,
+    NotFound,
     Forbidden,
     TextChannel,
     OptionChoice,
@@ -81,7 +82,10 @@ async def delete_prev_lineup(channel: TextChannel) -> None:
     msg = await get_prev_lineup(channel)
 
     if msg is not None:
-        await msg.delete()
+        try:
+            await msg.delete()
+        except NotFound:
+            pass
 
     return
 
@@ -113,6 +117,7 @@ def make_lineup(data: dict) -> MyEmbed:
 
     return e
 
+
 @role_check
 async def set_hours(
     guild: Guild,
@@ -131,6 +136,7 @@ async def set_hours(
 
     await asyncio.gather(*[asyncio.create_task(member.add_roles(*roles)) for member in members])
 
+
 @role_check
 async def drop_hours(
     guild: Guild,
@@ -146,6 +152,7 @@ async def drop_hours(
 
     await asyncio.gather(*[asyncio.create_task(member.remove_roles(*roles)) for member in members])
 
+
 @role_check
 async def clear_hours(
     guild: Guild,
@@ -156,7 +163,6 @@ async def clear_hours(
         if (role := get(guild.roles, name=str(hour))) is not None:
             await role.delete()
     return
-
 
 
 async def participate(
@@ -207,7 +213,6 @@ async def participate(
         await ctx.respond(**payload)
 
 
-
 async def drop(
     ctx: ContextLike,
     members: list[Member],
@@ -233,7 +238,6 @@ async def drop(
         await ctx.send(embed=e)
     else:
         await ctx.respond(embed=e)
-
 
 
 async def clear(ctx: ContextLike) -> None:
@@ -265,8 +269,6 @@ async def now(ctx: ContextLike) -> None:
         await ctx.respond(embed=e)
 
 
-
-
 async def out(ctx: ContextLike, hours_text: str) -> None:
     data = await get_gather(ctx.guild.id)
     hours = get_hours(hours_text)
@@ -292,8 +294,6 @@ async def out(ctx: ContextLike, hours_text: str) -> None:
         await ctx.send(**payload)
     else:
         await ctx.respond(**payload)
-
-
 
 
 class Match(commands.Cog, name='Match'):
