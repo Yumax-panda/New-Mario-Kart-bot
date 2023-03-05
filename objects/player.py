@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import Optional, Union, Type, TypeVar
+from math import isnan
 
 import aiohttp
 import asyncio
@@ -65,7 +66,15 @@ class PlayerBase:
 
     @classmethod
     def from_dict(cls: Type[T], data: dict) -> T:
-        return cls(**data)
+        _data = {}
+
+        for k, v in data.items():
+            if  isinstance(v, float) and isnan(v):
+                _data[k] = None
+            else:
+                _data[k] = v
+
+        return cls(**_data)
 
     @property
     def linked_id(self) -> Optional[str]:
@@ -220,6 +229,5 @@ def from_records(records: list[dict]) -> list[PlayerLike]:
             ret.append(Player.from_dict(data))
 
     return ret
-
 
 
