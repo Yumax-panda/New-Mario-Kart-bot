@@ -71,9 +71,9 @@ class Sokuji(commands.Cog, name='Sokuji'):
         if role is not None:
             mogi.banner_users = {f'{m.name}{m.discriminator}' for m in role.members}
             if flag:
-                await ctx.send(embed=mogi.updater_lineup)
+                await ctx.send(embed=await mogi.updater_lineup())
             else:
-                await ctx.respond(embed=mogi.updater_lineup)
+                await ctx.respond(embed=await mogi.updater_lineup())
 
         if flag:
             await ctx.send(embed=mogi.embed)
@@ -249,7 +249,7 @@ class Sokuji(commands.Cog, name='Sokuji'):
 
         if role is not None:
             sokuji.banner_users = {f'{m.name}{m.discriminator}' for m in role.members}
-            payload['embed'] = sokuji.updater_lineup.copy()
+            payload['embed'] = (await sokuji.updater_lineup()).copy()
 
         if locale is not None:
             sokuji.is_ja = locale == 'ja'
@@ -296,7 +296,7 @@ class Sokuji(commands.Cog, name='Sokuji'):
     ) -> None:
         await ctx.response.defer()
         sokuji = await Mogi.get(ctx.channel)
-        sokuji.add_race(rank, track, race_num)
+        await sokuji.add_race(rank, track, race_num)
         await sokuji.send(ctx.channel)
         await ctx.respond('レースを追加しました。' if sokuji.is_ja else 'Added race.')
 
@@ -313,7 +313,7 @@ class Sokuji(commands.Cog, name='Sokuji'):
         sokuji = await Mogi.get(ctx.channel)
         sokuji.tags[-1] = name
         await sokuji.refresh()
-        sokuji.update_obs()
+        await sokuji.update_obs()
         await ctx.send(f'タグを**{name}**へ変更しました。' if sokuji.is_ja else f'Changed tag **{name}**.')
         return
 
@@ -341,7 +341,7 @@ class Sokuji(commands.Cog, name='Sokuji'):
     ) -> None:
         await ctx.response.defer()
         sokuji = await Mogi.get(ctx.channel)
-        sokuji.back(race_num-1)
+        await sokuji.back(race_num-1)
         await sokuji.refresh()
         await ctx.respond('レースを削除しました。' if sokuji.is_ja else 'Deleted race.')
 
@@ -395,7 +395,7 @@ class Sokuji(commands.Cog, name='Sokuji'):
         except IndexError:
             raise OutOfRange
 
-        sokuji.update_obs()
+        await sokuji.update_obs()
         await sokuji.refresh()
         await ctx.respond('レースを編集しました。' if sokuji.is_ja else 'Edited race.')
 
@@ -406,7 +406,7 @@ class Sokuji(commands.Cog, name='Sokuji'):
         new_users = {f'{member.name}{member.discriminator}' for member in members}
         sokuji.banner_users |= new_users
         await sokuji.refresh()
-        sokuji.update_obs()
+        await sokuji.update_obs()
 
         if isinstance(ctx, commands.Context):
             await ctx.send(embed=Mogi.banner_embed(new_users))
@@ -471,7 +471,7 @@ class Sokuji(commands.Cog, name='Sokuji'):
         sokuji = await Mogi.get(ctx.channel)
 
         sokuji.banner_users -= {f'{member.name}{member.discriminator}' for member in members}
-        sokuji.update_obs()
+        await sokuji.update_obs()
         await sokuji.refresh()
 
         if isinstance(ctx, commands.Context):
@@ -588,7 +588,7 @@ class Sokuji(commands.Cog, name='Sokuji'):
             sokuji.penalty[index] += amount
 
         await sokuji.refresh()
-        sokuji.update_obs()
+        await sokuji.update_obs()
         await ctx.respond('ペナルティを追加しました。' if sokuji.is_ja else 'Added penalty.')
 
 
@@ -619,7 +619,7 @@ class Sokuji(commands.Cog, name='Sokuji'):
         sokuji = await Mogi.get(ctx.channel)
         setattr(sokuji, type, [0, 0])
         await sokuji.refresh()
-        sokuji.update_obs()
+        await sokuji.update_obs()
         await ctx.respond('ペナルティを削除しました。' if sokuji.is_ja else 'Cleared penalty.')
 
 
@@ -632,9 +632,9 @@ class Sokuji(commands.Cog, name='Sokuji'):
         try:
             sokuji = await Mogi.get(message.channel)
             if message.content == 'back':
-                sokuji.back()
+                await sokuji.back()
             else:
-                sokuji.add_race(message.content)
+                await sokuji.add_race(message.content)
             await sokuji.send(message.channel)
             return
         except (MogiNotFound, MogiArchived, NotAddable, NotBackable, InvalidRankInput):
