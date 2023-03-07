@@ -4,11 +4,10 @@ from typing_extensions import Self
 from datetime import datetime, timedelta
 from copy import copy
 
-from .database import update
 from .errors import *
 from .plotting import make
 from objects import Race, Rank, Track
-from common import MyEmbed, get_integers
+from common import MyEmbed, get_integers, update_sokuji
 from constants import MY_ID, BOT_IDS
 
 
@@ -187,7 +186,7 @@ class Mogi:
 
 
     @archive_check
-    def add_race(
+    async def add_race(
         self,
         rank_text: str,
         track_name: Optional[str] = None,
@@ -223,11 +222,11 @@ class Mogi:
         else:
             self.races.append(race)
 
-        self.update_obs()
+        await self.update_obs()
 
 
     @archive_check
-    def back(self, index: int = -1) -> None:
+    async def back(self, index: int = -1) -> None:
 
         if not self.races:
             raise NotBackable
@@ -237,18 +236,17 @@ class Mogi:
         except IndexError:
             raise OutOfRange
 
-        self.update_obs()
+        await self.update_obs()
 
 
 
-    def update_obs(self) -> None:
+    async def update_obs(self) -> None:
 
         if not self.banner_users:
             return
 
         left: int = 12-len(self.races)
         dif = self.total[0]-self.total[1]
-        data = {}
         payload = {
             'teams': self.tags.copy(),
             'left': left,
@@ -256,10 +254,7 @@ class Mogi:
             'dif': '{:+}'.format(dif),
             'scores': self.total
         }
-        for user in self.banner_users:
-            data[user] = payload
-
-        update(data)
+        await update_sokuji(payload, self.banner_users.copy())
         return
 
 
@@ -325,14 +320,13 @@ class Mogi:
         for user in banner_users:
             e.add_field(
                 name=f'__{user[:-4]}\'s URL__',
-                value=f'> https://yumax-panda.github.io/Sokuji/?user={user}',
+                value=f'> https://yumax-panda.github.io/sokuji-view/?user={user}',
                 inline=False
             )
 
         return e
 
 
-    @property
-    def updater_lineup(self) -> MyEmbed:
-        self.update_obs()
+    async def updater_lineup(self) -> MyEmbed:
+        await self.update_obs()
         return Mogi.banner_embed(self.banner_users)
