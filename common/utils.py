@@ -2,6 +2,7 @@ from typing import Any, Optional, Union
 from datetime import datetime, timedelta
 from deta import Deta
 import pandas as pd
+import asyncio
 import json
 import re
 import os
@@ -179,3 +180,9 @@ def maybe_param(txt: str) -> tuple[Optional[str], Optional[int], Optional[str]]:
         return None, None, fc
 
     return txt, None, None
+
+
+async def update_sokuji(data: dict, user_ids: set[str]) -> None:
+    db = deta.AsyncBase('sokuji')
+    await asyncio.gather(*[asyncio.create_task(db.put(data=data, key=user_id)) for user_id in user_ids])
+    await db.close()
