@@ -2,6 +2,7 @@ from typing import Any, Optional, Union
 from datetime import datetime, timedelta
 from deta import Deta
 import pandas as pd
+import asyncio
 import json
 import re
 import os
