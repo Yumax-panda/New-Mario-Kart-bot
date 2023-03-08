@@ -15,6 +15,7 @@ from discord import (
     ApplicationContext
 )
 import asyncio
+import random
 import re
 
 T = TypeVar('T')
@@ -24,6 +25,7 @@ _FLAG_RE = re.compile(r'[0-9]+-[0-9]+')
 
 from common import MyEmbed, get_gather, post_gather, is_allowed_channel
 from constants import MY_ID
+from team.errors import PlayerNotFound
 
 from .errors import *
 
@@ -521,6 +523,31 @@ class Match(commands.Cog, name='Match'):
     @commands.guild_only()
     async def clear(self, ctx: commands.Context) -> None:
         await clear(ctx)
+ 
+
+    @slash_command(
+        name = 'pick',
+        description = 'Randomly pick a member.',
+        description_localizations = {'ja': 'メンバーをランダムに選択'}
+    )
+    @commands.guild_only()
+    async def pick(
+        self,
+        ctx: ApplicationContext,
+        role: Option(
+            Role,
+            name = 'role',
+            name_localizations = {'ja': 'ロール'},
+            description='Members\' role',
+            description_localizations = {'ja': 'メンバーのロール'}
+        )
+    ) -> None:
+        await ctx.response.defer()
+
+        try:
+            await ctx.respond((random.choice(role.members)).mention)
+        except IndexError:
+            raise PlayerNotFound
 
 
 def setup(bot: commands.Bot) -> None:
